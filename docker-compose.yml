@@ -1,0 +1,85 @@
+version: "3"
+services:
+  laravel-test:
+    build:
+      context: ./docker/php
+      args:
+        - TZ=${TZ:-Asia/Tokyo}
+    ports:
+      - ${APP_PORT:-18000}:8000
+    volumes:
+      - ${PROJECT_PATH:-./src}:/work/${COMPOSE_PROJECT_NAME}:delegated
+      - ./docker/ash:/etc/profile.d
+      - ./logs:/var/log/php
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+      - ./docker/php/supervisord.conf:/etc/supervisord.conf
+      - ./docker/php/supervisord.d:/etc/supervisord.d
+      - ./docker/php/psysh:/root/.config/psysh
+    working_dir: /work/${COMPOSE_PROJECT_NAME}
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=laravel-test-db
+      - DB_DATABASE=${DB_NAME:-homestead}
+      - DB_USERNAME=${DB_USER:-homestead}
+      - DB_PASSWORD=${DB_PASS:-secret}
+      - TZ=${TZ:-Asia/Tokyo}
+      - CACHE_DRIVER=file
+      - SESSION_DRIVER=file
+      - QUEUE_DRIVER=database
+    entrypoint: ["/usr/bin/supervisord", "-n", "-c",  "/etc/supervisord.conf"]
+
+  laravel-test-nginx:
+    build: 
+      context: .
+      dockerfile: docker/nginx/nginx.Dockerfile
+    depends_on:
+      - laravel-test
+    ports:
+      - ${WEB_PORT:-10080}:8085
+      - ${WEB_PORT_HTTPS:-8081}:443
+    volumes:
+      - ${PROJECT_PATH:-./src}:/work/${COMPOSE_PROJECT_NAME}:delegated
+      - ./docker:/work/docker
+      - ./logs:/var/log/nginx
+      - ./docker/nginx/nginx.conf.template:/etc/nginx/conf.d/nginx.conf.template
+    environment:
+      - TZ=${TZ:-Asia/Tokyo}
+      - COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}
+      - WEB_HTTPS_DOMAIN=${WEB_HTTPS_DOMAIN}
+    command: [/bin/bash, /work/docker/nginx/command.sh]
+    working_dir: /work/${COMPOSE_PROJECT_NAME}
+
+
+  laravel-test-db:
+    image: mysql
+    volumes:
+      - db-store:/var/lib/mysql
+      - ./logs:/var/log/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    environment:
+      - MYSQL_DATABASE=${DB_NAME:-homestead}
+      - MYSQL_USER=${DB_USER:-homestead}
+      - MYSQL_PASSWORD=${DB_PASS:-secret}
+      - MYSQL_ROOT_PASSWORD=${DB_PASS:-secret}
+      - TZ=${TZ:-Asia/Tokyo}
+    ports:
+      - ${DB_PORT:-13308}:3306
+
+  laravel-test-mailhog:
+    image: mailhog/mailhog
+    volumes:
+        - ./mailhog/maildir:/maildir
+    command: ["-storage=maildir", "-maildir-path=/maildir"]
+    ports:
+      - ${MAILHOG_PORT:-8025}:8025
+
+  laravel-test-phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - ${PHPMYADMIN_PORT:-18000}:80
+    environment:
+      - PMA_HOST=laravel-test-db
+
+volumes:
+  db-store:
+    driver: local

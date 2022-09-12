@@ -1,0 +1,35 @@
+.sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link.active, .sidebar-light-primary .nav-sidebar>.nav-item>.nav-link.active , .btn-color{
+    background-color: #0cba53!important;
+}
+
+.nav-pills .nav-link, .btn-round {
+    border-radius: 2rem!important;
+}
+
+.btn-color {
+    color: white!important;
+    font-weight: 700!important;
+}
+
+.bg-normal {
+    background-color: white!important;
+    color: #0cba53!important;
+}
+
+.page-root {
+    color: #0cba53!important;
+}
+
+.os-content {
+    padding-left: .5rem!important;
+    padding-right: .5rem!important;
+}
+
+.breadcrumb {
+    margin: 0!important;
+    padding: 0.5rem!important;
+}
+
+.nav-sidebar .nav-link>.right:nth-child(2), .nav-sidebar .nav-link>p>.right:nth-child(2)  {
+    right: 1rem!important;
+}

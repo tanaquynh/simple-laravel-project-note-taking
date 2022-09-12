@@ -1,0 +1,9 @@
+{
+    "/js/app.js": "/js/app.js",
+    "/js/login.js": "/js/login.js",
+    "/js/register.js": "/js/register.js",
+    "/js/note.js": "/js/note.js",
+    "/css/common.css": "/css/common.css",
+    "/css/app.css": "/css/app.css",
+    "/css/header-sidebar.css": "/css/header-sidebar.css"
+}
